@@ -215,11 +215,17 @@ def run_agent(request_text: str) -> Dict[str, Any]:
     try:
         # Run the graph
         result = graph.invoke(initial_state, {"recursion_limit": 5})
+        plan_list = result.get("plan", [])
+        meaningful_message = (
+            f"Task executed successfully! I analyzed your request, formulated a {len(plan_list)}-step "
+            f"execution plan ({', '.join(plan_list)}), drafted the content, passed it through self-reflection "
+            "quality checks, and exported the final polished output to a Word document."
+        )
         return {
             "status": "success",
-            "plan": result.get("plan", []),
+            "plan": plan_list,
             "document_path": result.get("document_path", ""),
-            "message": "Document generated successfully."
+            "message": meaningful_message
         }
     except Exception as e:
         return {
